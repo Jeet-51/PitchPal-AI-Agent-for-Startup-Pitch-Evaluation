@@ -190,17 +190,19 @@ class PitchEvaluation(BaseModel):
 ## 📊 Sample Evaluation Results
 
 ### **High-Performance Startup Example**
+![Home Page](https://github.com/user-attachments/assets/31eba844-311b-4fc8-8b2d-6d3cad8b6bc3)
+![Rating and analysis](https://github.com/user-attachments/assets/e41f81a9-65c6-4d50-8538-6fb8d3757375)
 - **Overall Score**: 8.4/10
 - **Investment Recommendation**: Buy
 - **Strengths**: Clear problem definition, large market, proven traction
 - **Key Insights**: Strong technical metrics with validated pilot results
 
 ### **Analytics Insights**
+![Analytics Dashboard](https://github.com/user-attachments/assets/30571eff-794b-4295-a644-6de7c6f9c4ec)
 - **Total Evaluations**: 5 completed assessments
 - **Agent vs Chain**: 4 agent evaluations, 1 chain evaluation  
 - **Score Range**: 6.0 - 7.4 across different startup types
 - **Success Rate**: 80% of evaluations recommend investment consideration
-
 ---
 
 ## 🎓 Learning Objectives Achieved
