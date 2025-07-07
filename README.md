@@ -8,7 +8,7 @@
 
 **A sophisticated AI-powered platform that evaluates startup pitches using advanced LangChain agents and OpenAI GPT-4**
 
-🌟 **[Try Live Demo](https://pitchpal-ai-agent-for-startup-pitch-evaluation.streamlit.app/)** | 📖 **[View Code](https://github.com/Jeet-51/PitchPal-AI-Agent-for-Startup-Pitch-Evaluation)**
+🌟 **[Try Live Demo](https://pitchpal-ai.streamlit.app/)** | 📖 **[View Code](https://github.com/Jeet-51/PitchPal-AI-Agent-for-Startup-Pitch-Evaluation)**
 
 ---
 
