@@ -1,9 +1,6 @@
-streamlit==1.29.0
-langchain==0.1.17
-langchain-openai==0.1.1
-langchain-community==0.0.38
-openai==1.35.0
-pydantic==2.5.0
-plotly==5.17.0
-python-dotenv==1.0.0
-requests==2.31.0
+streamlit
+langchain
+langchain-openai
+openai
+plotly
+python-dotenv
