@@ -1,12 +1,22 @@
-# Minimal requirements without pandas
+# Core LangChain and AI dependencies
 langchain==0.1.0
 langchain-openai==0.0.5
 langchain-community==0.0.10
 openai==1.7.0
+
+# Web framework
 streamlit==1.29.0
 fastapi==0.104.1
 uvicorn==0.24.0
+
+# Data processing
 pydantic==2.5.0
+plotly==5.17.0
+
+# Utilities
 python-dotenv==1.0.0
 requests==2.31.0
-plotly==5.17.0
+
+# Remove problematic packages
+# pandas (causes build issues on cloud)
+# langserve (not needed for Streamlit app)
