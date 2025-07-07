@@ -9,7 +9,29 @@ import json
 import plotly.graph_objects as go
 import plotly.express as px
 from datetime import datetime
+import streamlit as st
+import os
 
+# Configure API key from Streamlit secrets or user input
+if "OPENAI_API_KEY" in st.secrets:
+    os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
+    default_key = "✅ API Key Configured"
+    disabled = True
+else:
+    default_key = ""
+    disabled = False
+
+# API Key input in sidebar
+api_key = st.text_input(
+    "OpenAI API Key", 
+    value=default_key,
+    type="password" if default_key == "" else "default",
+    disabled=disabled,
+    help="Enter your OpenAI API key or use the pre-configured one"
+)
+
+if api_key and api_key != "✅ API Key Configured":
+    os.environ["OPENAI_API_KEY"] = api_key
 try:
     import pandas as pd
     PANDAS_AVAILABLE = True
