@@ -6,32 +6,11 @@ Showcases LangChain, AI Agents, and OpenAI integration
 import streamlit as st
 import asyncio
 import json
+import os
 import plotly.graph_objects as go
 import plotly.express as px
 from datetime import datetime
-import streamlit as st
-import os
 
-# Configure API key from Streamlit secrets or user input
-if "OPENAI_API_KEY" in st.secrets:
-    os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
-    default_key = "✅ API Key Configured"
-    disabled = True
-else:
-    default_key = ""
-    disabled = False
-
-# API Key input in sidebar
-api_key = st.text_input(
-    "OpenAI API Key", 
-    value=default_key,
-    type="password" if default_key == "" else "default",
-    disabled=disabled,
-    help="Enter your OpenAI API key or use the pre-configured one"
-)
-
-if api_key and api_key != "✅ API Key Configured":
-    os.environ["OPENAI_API_KEY"] = api_key
 try:
     import pandas as pd
     PANDAS_AVAILABLE = True
@@ -252,13 +231,26 @@ def main():
     with st.sidebar:
         st.header("⚙️ Configuration")
         
-        # API Key input
-        api_key = st.text_input("OpenAI API Key", type="password", 
-                               help="Enter your OpenAI API key to enable evaluations")
-        
-        if api_key:
-            import os
-            os.environ["OPENAI_API_KEY"] = api_key
+        # Single API Key input with safe Streamlit Cloud support
+        try:
+            # Check if running on Streamlit Cloud with secrets
+            if hasattr(st, 'secrets') and "OPENAI_API_KEY" in st.secrets:
+                # If API key is configured in Streamlit Cloud secrets
+                st.success("✅ OpenAI API Key Configured")
+                os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
+                api_key_configured = True
+            else:
+                raise KeyError("No secrets configured")
+        except (KeyError, FileNotFoundError, Exception):
+            # If no secrets (local development), show input field
+            api_key = st.text_input("OpenAI API Key", type="password", 
+                                   help="Enter your OpenAI API key to enable evaluations")
+            
+            if api_key:
+                os.environ["OPENAI_API_KEY"] = api_key
+                api_key_configured = True
+            else:
+                api_key_configured = False
         
         st.divider()
         
@@ -338,8 +330,8 @@ def main():
             )
         
         # Evaluate button
-        if st.button("🚀 Evaluate Pitch", type="primary", disabled=not (startup_name and pitch_text and api_key)):
-            if not api_key:
+        if st.button("🚀 Evaluate Pitch", type="primary", disabled=not (startup_name and pitch_text and api_key_configured)):
+            if not api_key_configured:
                 st.error("Please enter your OpenAI API key in the sidebar")
             elif not startup_name or not pitch_text:
                 st.error("Please provide both startup name and pitch description")
