@@ -191,7 +191,6 @@ class PitchEvaluation(BaseModel):
 
 ### **High-Performance Startup Example**
 ![Home Page](https://github.com/user-attachments/assets/31eba844-311b-4fc8-8b2d-6d3cad8b6bc3)
-![Rating and analysis](https://github.com/user-attachments/assets/e41f81a9-65c6-4d50-8538-6fb8d3757375)
 - **Overall Score**: 8.4/10
 - **Investment Recommendation**: Buy
 - **Strengths**: Clear problem definition, large market, proven traction
