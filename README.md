@@ -261,7 +261,7 @@ PitchPal/
 ## 🚀 Deployment
 
 ### **Streamlit Cloud** (Current)
-- **Live URL**: [https://pitchpal-ai-agent-for-startup-pitch-evaluation.streamlit.app/](https://pitchpal-ai.streamlit.app/)
+- **Live URL**: [https://pitchpal-ai.streamlit.app/](https://pitchpal-ai.streamlit.app/)
 - **Auto-deployment**: Triggered by GitHub commits
 - **Secrets Management**: Secure API key storage
 
@@ -302,7 +302,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 👨‍💻 Author
 
 **Jeet Patel**
-- 🌐 **Live Demo**: [PitchPal Application](https://pitchpal-ai-agent-for-startup-pitch-evaluation.streamlit.app/)
+- 🌐 **Live Demo**: [PitchPal Application](https://pitchpal-ai.streamlit.app/)
 - 📂 **GitHub**: [Jeet-51](https://github.com/Jeet-51)
 - 💼 **LinkedIn**: [Connect with me](https://linkedin.com/in/your-profile)
 - 📧 **Email**: your.email@example.com
