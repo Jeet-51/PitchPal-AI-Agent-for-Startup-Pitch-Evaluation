@@ -3,21 +3,39 @@ PitchPal - AI-powered startup pitch evaluator
 A portfolio project demonstrating LangChain, AI Agents, and OpenAI integration
 """
 
+"""
+PitchPal - AI-powered startup pitch evaluator
+A portfolio project demonstrating LangChain, AI Agents, and OpenAI integration
+"""
+
 import os
 import json
 import asyncio
+import re
 from typing import Dict, List, Any, Optional
 from datetime import datetime
 from pydantic import BaseModel, Field
 
+# LangChain Core
 from langchain_core.prompts import PromptTemplate, ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.tools import BaseTool
+
+# LangChain Chains
 from langchain.chains import LLMChain, SequentialChain
-from langchain.agents import AgentExecutor, create_react_agent, Tool
-from langchain.tools import BaseTool
+
+# LangChain Agents
+from langchain.agents import AgentExecutor, create_react_agent
+
+# LangChain Memory
 from langchain.memory import ConversationBufferMemory
-from langchain.schema import BaseOutputParser
+
+# OpenAI
 from langchain_openai import ChatOpenAI
+
+# Load environment variables
 from dotenv import load_dotenv
+load_dotenv()
 
 load_dotenv()
 
