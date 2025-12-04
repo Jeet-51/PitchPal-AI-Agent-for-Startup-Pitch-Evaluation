@@ -10,7 +10,7 @@ from typing import Dict, List, Any, Optional
 from datetime import datetime
 from pydantic import BaseModel, Field
 
-from langchain.prompts import PromptTemplate, ChatPromptTemplate
+from langchain_core.prompts import PromptTemplate, ChatPromptTemplate
 from langchain.chains import LLMChain, SequentialChain
 from langchain.agents import AgentExecutor, create_react_agent, Tool
 from langchain.tools import BaseTool
