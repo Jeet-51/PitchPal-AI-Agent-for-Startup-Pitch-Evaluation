@@ -1,7 +1,3 @@
-"""
-PitchPal - AI-powered startup pitch evaluator
-A portfolio project demonstrating LangChain, AI Agents, and OpenAI integration
-"""
 
 """
 PitchPal - AI-powered startup pitch evaluator
