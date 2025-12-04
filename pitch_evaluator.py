@@ -33,9 +33,6 @@ from langchain_openai import ChatOpenAI
 from dotenv import load_dotenv
 load_dotenv()
 
-load_dotenv()
-
-
 # Pydantic Models for Structured Output
 class DimensionScore(BaseModel):
     """Individual evaluation dimension"""
