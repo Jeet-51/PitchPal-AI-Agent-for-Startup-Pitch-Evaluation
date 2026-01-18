@@ -7,9 +7,8 @@ import streamlit as st
 import asyncio
 import json
 import os
-os.environ.pop("OPENAI_PROXY", None)
-os.environ.pop("HTTP_PROXY", None)
-os.environ.pop("HTTPS_PROXY", None)
+for k in ["OPENAI_PROXY", "HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY"]:
+    os.environ.pop(k, None)
 import plotly.graph_objects as go
 import plotly.express as px
 from datetime import datetime
