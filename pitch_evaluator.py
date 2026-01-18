@@ -134,7 +134,7 @@ class EvaluationAgent:
     """Main evaluator that coordinates pitch analysis using tools + LLM (no LangChain agents)."""
 
     def __init__(self):
-        self.llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.3)
+        self.llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.3, openai_proxy=None)
         self.tools = [
             MarketResearchTool(),
             CompetitorAnalysisTool(),
