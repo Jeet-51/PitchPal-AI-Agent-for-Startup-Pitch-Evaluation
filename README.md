@@ -228,6 +228,18 @@ class PitchEvaluation(BaseModel):
 
 ---
 
+## 🧠 Design Decisions
+
+- **Pinned LangChain versions** were chosen to ensure stability of legacy
+  `LLMChain` and `SequentialChain` abstractions.
+- **Agent-first architecture** is used for production-style evaluation,
+  while sequential chains are included for educational comparison.
+- **Structured outputs with Pydantic** ensure predictable downstream visualization.
+- **Async execution** improves responsiveness for multi-step agent workflows.
+
+
+
+
 ## 📁 Project Structure
 
 ```
