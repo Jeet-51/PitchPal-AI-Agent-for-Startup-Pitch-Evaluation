@@ -18,7 +18,11 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.tools import BaseTool
 
 # LangChain Chains
-from langchain.chains import LLMChain, SequentialChain
+try:
+    from langchain.chains import LLMChain, SequentialChain
+except Exception:
+    from langchain.chains.llm import LLMChain
+    from langchain.chains.sequential import SequentialChain
 
 # LangChain Agents
 from langchain.agents import AgentExecutor, create_react_agent
@@ -179,7 +183,7 @@ Thought:{agent_scratchpad}"""
         
         prompt = PromptTemplate(
             template=prompt_template,
-            input_variables=["input", "agent_scratchpad"],
+            input_variables=["input", "agent_scratchpad", "tools", "tool_names"],
             partial_variables={
                 "tools": "\n".join([f"{tool.name}: {tool.description}" for tool in self.tools]),
                 "tool_names": ", ".join([tool.name for tool in self.tools])
