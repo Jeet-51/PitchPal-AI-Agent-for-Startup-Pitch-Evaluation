@@ -144,7 +144,7 @@ class EvaluationAgent:
     """Main evaluation agent that coordinates the pitch analysis"""
     
     def __init__(self):
-        self.llm = ChatOpenAI(model="gpt-4", temperature=0.3)
+        self.llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.3)
         self.tools = [
             MarketResearchTool(),
             CompetitorAnalysisTool(),
@@ -543,7 +543,7 @@ class SimpleChainEvaluator:
     """Simpler chain-based evaluator for comparison"""
     
     def __init__(self):
-        self.llm = ChatOpenAI(model="gpt-4", temperature=0.3)
+        self.llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.3)
         self._setup_chains()
     
     def _setup_chains(self):
