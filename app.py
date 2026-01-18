@@ -7,6 +7,7 @@ import streamlit as st
 import asyncio
 import json
 import os
+os.environ.pop("OPENAI_PROXY", None)
 import plotly.graph_objects as go
 import plotly.express as px
 from datetime import datetime
