@@ -350,7 +350,7 @@ class SimpleChainEvaluator:
     """LCEL-based evaluator (no legacy SequentialChain/LLMChain)."""
 
     def __init__(self):
-        self.llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.3)
+        self.llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.3, openai_proxy=None)
         self._setup_chain()
 
     def _setup_chain(self):
