@@ -164,7 +164,7 @@ graph TD
 ```python
 class EvaluationAgent:
     def __init__(self):
-        self.llm = ChatOpenAI(model="gpt-4")
+        self.llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.3)
         self.tools = [MarketResearchTool(), CompetitorAnalysisTool(), FinancialModelingTool()]
         self.agent = create_react_agent(self.llm, self.tools, prompt)
 ```
