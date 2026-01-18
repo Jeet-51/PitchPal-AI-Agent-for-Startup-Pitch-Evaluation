@@ -257,7 +257,7 @@ def main():
         # Evaluator selection
         evaluator_type = st.selectbox(
             "🤖 Choose Evaluator",
-            ["AI Agent (ReAct)", "Sequential Chains"],
+            ["AI Agent (ReAct)", "Sequential Chains (LCEL)"],
             help="Select the AI approach for evaluation"
         )
         
@@ -295,6 +295,8 @@ def main():
         st.header("📈 History")
         if st.session_state.evaluation_history:
             for i, eval_data in enumerate(st.session_state.evaluation_history[-3:]):
+                score = eval_data.get("score")
+                score_text = f"{score:.1f}/10" if isinstance(score, (int, float)) else "N/A"
                 with st.expander(f"{eval_data['name']} - {eval_data['score']:.1f}/10"):
                     st.write(f"**Method:** {eval_data['method']}")
                     st.write(f"**Date:** {eval_data['timestamp']}")
@@ -359,7 +361,7 @@ def main():
                         else:
                             st.session_state.evaluation_history.append({
                                 'name': result['startup_name'],
-                                'score': 7.5,  # Placeholder for chain method
+                                'score': None,  # Placeholder for chain method
                                 'method': evaluator_type,
                                 'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M"),
                                 'evaluation': result
