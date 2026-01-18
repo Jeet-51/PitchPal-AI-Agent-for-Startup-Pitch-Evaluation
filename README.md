@@ -2,8 +2,8 @@
 
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://pitchpal-ai-agent-for-startup-pitch-evaluation.streamlit.app/)
 [![Python](https://img.shields.io/badge/python-v3.8+-blue.svg)](https://www.python.org/downloads/)
-[![LangChain](https://img.shields.io/badge/LangChain-0.1.0-green.svg)](https://python.langchain.com/)
-[![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4-orange.svg)](https://openai.com/)
+[![LangChain](https://img.shields.io/badge/LangChain-0.1.x-green.svg)]
+[![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4o--mini-orange.svg)]
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 **A sophisticated AI-powered platform that evaluates startup pitches using advanced LangChain agents and OpenAI GPT-4**
