@@ -134,11 +134,7 @@ class EvaluationAgent:
             CompetitorAnalysisTool(),
             FinancialModelingTool()
         ]
-        self.memory = ConversationBufferMemory(
-            memory_key="chat_history",
-            return_messages=True
-        )
-        self.agent = self._create_agent()
+
 
     def _create_agent(self) -> AgentExecutor:
         prompt_template = """
