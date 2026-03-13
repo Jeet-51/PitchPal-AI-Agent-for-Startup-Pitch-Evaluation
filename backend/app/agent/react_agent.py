@@ -769,16 +769,15 @@ IMPORTANT: Return ONLY the JSON. No text before or after. No markdown code block
 
         overall = float(data.get("overall_score", 5.0))
 
-        # Derive recommendation if missing
-        rec = data.get("recommendation") or data.get("investment_recommendation")
-        if not rec:
-            rec = (
-                "Strong Buy" if overall >= 8.5
-                else "Buy" if overall >= 7
-                else "Hold" if overall >= 5
-                else "Pass" if overall >= 3
-                else "Strong Pass"
-            )
+        # Always enforce score-based recommendation thresholds
+        if overall >= 8.0:
+            rec = "Buy"
+        elif overall >= 7.0:
+            rec = "Hold - Promising fundamentals - refine your pitch on the weaker dimensions to reach investment-ready."
+        elif overall >= 5.5:
+            rec = "Hold"
+        else:
+            rec = "Pass"
 
         # Extract contradictions
         raw_contradictions = data.get("contradictions", [])

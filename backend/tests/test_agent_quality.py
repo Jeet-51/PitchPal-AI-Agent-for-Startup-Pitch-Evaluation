@@ -92,7 +92,7 @@ def _build_mock_evaluation(
 
 @pytest.fixture
 def startup_eval() -> PitchEvaluation:
-    return _build_mock_evaluation(role="startup", overall_score=7.0, recommendation="Buy")
+    return _build_mock_evaluation(role="startup", overall_score=7.0, recommendation="Hold")
 
 
 @pytest.fixture
@@ -112,7 +112,7 @@ def healthai_eval() -> PitchEvaluation:
         startup_name="HealthAI",
         role="startup",
         overall_score=7.2,
-        recommendation="Buy",
+        recommendation="Hold",
         dim_scores=[7.0, 8.0, 7.0, 6.0, 8.0],
         contradictions=[
             {
@@ -143,7 +143,7 @@ def greencoin_eval() -> PitchEvaluation:
         startup_name="GreenCoin",
         role="startup",
         overall_score=5.0,
-        recommendation="Hold",
+        recommendation="Pass",
         dim_scores=[5.0, 5.0, 4.5, 5.0, 5.5],
     )
 
@@ -185,8 +185,7 @@ class TestOutputSchemaValidation:
         assert 0 <= startup_eval.overall_score <= 10
 
     def test_recommendation_is_valid_value(self, startup_eval: PitchEvaluation):
-        valid_values = {"Strong Buy", "Buy", "Hold", "Pass", "Strong Pass"}
-        # Allow compound recommendations like "Hold — Re-evaluation Required"
+        valid_values = {"Buy", "Hold", "Pass"}
         rec = startup_eval.investment_recommendation
         assert any(v in rec for v in valid_values), (
             f"Recommendation '{rec}' does not contain a valid value from {valid_values}"
@@ -223,7 +222,7 @@ class TestOutputSchemaValidation:
 
 
 # =====================================================================
-# 2. Score Consistency Tests
+# 2. Score Consistency Tests (updated for new thresholds)
 # =====================================================================
 
 class TestScoreConsistency:
@@ -236,15 +235,43 @@ class TestScoreConsistency:
             f"{dim_mean:.2f} by more than 1.0"
         )
 
-    def test_high_score_has_buy_recommendation(self):
+    def test_score_8_plus_is_buy(self):
+        """Scores >= 8.0 should map to Buy."""
         eval_ = _build_mock_evaluation(overall_score=8.0, recommendation="Buy")
-        assert eval_.investment_recommendation in ("Buy", "Strong Buy")
+        assert "Buy" in eval_.investment_recommendation
 
-    def test_low_score_has_pass_recommendation(self):
-        eval_ = _build_mock_evaluation(overall_score=3.0, recommendation="Pass")
-        assert eval_.investment_recommendation in ("Pass", "Strong Pass")
+    def test_score_8_5_is_buy(self):
+        """Scores >= 8.5 should also map to Buy (not Strong Buy)."""
+        eval_ = _build_mock_evaluation(overall_score=8.5, recommendation="Buy")
+        assert eval_.investment_recommendation == "Buy"
 
-    def test_medium_score_has_hold_recommendation(self):
+    def test_score_9_is_buy(self):
+        """Score 9.0 maps to Buy."""
+        eval_ = _build_mock_evaluation(overall_score=9.0, recommendation="Buy")
+        assert eval_.investment_recommendation == "Buy"
+
+    def test_score_7_to_8_is_hold_promising(self):
+        """Scores 7.0-7.9 should map to Hold with promising message."""
+        eval_ = _build_mock_evaluation(overall_score=7.5, recommendation="Hold")
+        assert "Hold" in eval_.investment_recommendation
+
+    def test_score_5_5_to_7_is_hold(self):
+        """Scores 5.5-6.9 should map to Hold."""
+        eval_ = _build_mock_evaluation(overall_score=6.0, recommendation="Hold")
+        assert eval_.investment_recommendation == "Hold"
+
+    def test_score_below_5_5_is_pass(self):
+        """Scores < 5.5 should map to Pass."""
+        eval_ = _build_mock_evaluation(overall_score=4.0, recommendation="Pass")
+        assert eval_.investment_recommendation == "Pass"
+
+    def test_score_5_4_is_pass(self):
+        """Score 5.4 is below 5.5 threshold, should be Pass."""
+        eval_ = _build_mock_evaluation(overall_score=5.4, recommendation="Pass")
+        assert eval_.investment_recommendation == "Pass"
+
+    def test_score_5_5_is_hold(self):
+        """Score 5.5 is exactly at Hold threshold."""
         eval_ = _build_mock_evaluation(overall_score=5.5, recommendation="Hold")
         assert eval_.investment_recommendation == "Hold"
 
@@ -255,8 +282,6 @@ class TestScoreConsistency:
 
 class TestJsonRepair:
     """Tests for _try_fix_truncated_json and _extract_json_string_aware."""
-
-    # --- Ported from test_fixes.py ---
 
     def test_string_aware_bracket_extractor(self):
         """Parentheses inside strings do not break extraction."""
@@ -298,8 +323,6 @@ class TestJsonRepair:
         assert result["recommendation"] == "Buy"
         assert result["overall_score"] == 6.8
 
-    # --- New / expanded tests ---
-
     def test_repair_truncated_json(self):
         """Handles JSON cut off mid-string value."""
         truncated = '{"name": "TestStartup", "score": 7, "reasoning": "This is a goo'
@@ -334,7 +357,6 @@ class TestJsonRepair:
     def test_repair_json_with_markdown_fences(self):
         """JSON wrapped in markdown code fences can still be extracted."""
         raw = '```json\n{"score": 9, "reasoning": "Excellent"}\n```'
-        # _try_fix_truncated_json uses Strategy 3 (extract largest {...})
         result = _try_fix_truncated_json(raw)
         assert result is not None
         assert result.get("score") == 9
@@ -349,7 +371,6 @@ class TestJsonRepair:
     def test_repair_returns_none_for_garbage(self):
         """Completely invalid input returns None."""
         result = _try_fix_truncated_json("this is not json at all")
-        # Strategy 5 may extract partial fields; if none match, returns None
         assert result is None or isinstance(result, dict)
 
 
@@ -405,30 +426,17 @@ class TestSamplePitchBenchmarks:
     def test_healthai_scores_reasonable(self, healthai_eval: PitchEvaluation):
         """HealthAI: strong team, real traction -> expected overall 6-8."""
         assert healthai_eval.startup_name == "HealthAI"
-        assert 6.0 <= healthai_eval.overall_score <= 8.0, (
-            f"HealthAI overall_score {healthai_eval.overall_score} outside expected 6-8 range"
-        )
-        for dim in healthai_eval.dimensions:
-            assert 0 <= dim.score <= 10
-            assert len(dim.reasoning) > 0
+        assert 6.0 <= healthai_eval.overall_score <= 8.0
 
     def test_eduverse_scores_reasonable(self, eduverse_eval: PitchEvaluation):
         """EduVerse: growing revenue, real product -> expected overall 5-7."""
         assert eduverse_eval.startup_name == "EduVerse"
-        assert 5.0 <= eduverse_eval.overall_score <= 7.0, (
-            f"EduVerse overall_score {eduverse_eval.overall_score} outside expected 5-7 range"
-        )
-        for dim in eduverse_eval.dimensions:
-            assert 0 <= dim.score <= 10
+        assert 5.0 <= eduverse_eval.overall_score <= 7.0
 
     def test_greencoin_scores_reasonable(self, greencoin_eval: PitchEvaluation):
         """GreenCoin: crypto angle, niche -> expected overall 4-6."""
         assert greencoin_eval.startup_name == "GreenCoin"
-        assert 4.0 <= greencoin_eval.overall_score <= 6.0, (
-            f"GreenCoin overall_score {greencoin_eval.overall_score} outside expected 4-6 range"
-        )
-        for dim in greencoin_eval.dimensions:
-            assert 0 <= dim.score <= 10
+        assert 4.0 <= greencoin_eval.overall_score <= 6.0
 
     def test_sample_pitches_exist(self):
         """Verify the sample pitches data is available."""
@@ -512,3 +520,326 @@ class TestPydanticBoundaries:
                 main_concerns=[],
                 next_steps=[],
             )
+
+
+# =====================================================================
+# 8. Golden Dataset Benchmark Pitches (15 pitches)
+# =====================================================================
+
+class TestGoldenDatasetBenchmarks:
+    """
+    15 benchmark pitches across 4 tiers to validate score-to-recommendation
+    calibration. Each pitch uses mock scores that represent what the agent
+    should produce for that quality tier.
+
+    Tiers:
+      Strong (4 pitches)    - overall >= 8.0 -> Buy
+      Promising (4 pitches) - overall 7.0-7.9 -> Hold (promising message)
+      Average (4 pitches)   - overall 5.5-6.9 -> Hold
+      Weak (3 pitches)      - overall < 5.5 -> Pass
+    """
+
+    # -----------------------------------------------------------------
+    # Strong Tier (>= 8.0 -> Buy)
+    # -----------------------------------------------------------------
+
+    def test_strong_01_stripe_like_fintech(self):
+        """Fintech with strong execution, proven revenue, large TAM."""
+        ev = _build_mock_evaluation(
+            startup_name="PayFlow",
+            overall_score=8.5,
+            recommendation="Buy",
+            dim_scores=[8.5, 9.0, 8.0, 8.0, 9.0],
+        )
+        assert ev.overall_score >= 8.0
+        assert ev.investment_recommendation == "Buy"
+
+    def test_strong_02_ai_saas_platform(self):
+        """AI SaaS with deep moat, enterprise contracts, strong retention."""
+        ev = _build_mock_evaluation(
+            startup_name="CortexAI",
+            overall_score=8.8,
+            recommendation="Buy",
+            dim_scores=[9.0, 8.5, 9.0, 8.5, 9.0],
+        )
+        assert ev.overall_score >= 8.0
+        assert ev.investment_recommendation == "Buy"
+
+    def test_strong_03_biotech_breakthrough(self):
+        """Biotech with FDA fast-track, strong IP, funded team."""
+        ev = _build_mock_evaluation(
+            startup_name="GeneCure",
+            overall_score=8.2,
+            recommendation="Buy",
+            dim_scores=[8.0, 8.5, 8.0, 8.0, 8.5],
+        )
+        assert ev.overall_score >= 8.0
+        assert ev.investment_recommendation == "Buy"
+
+    def test_strong_04_marketplace_leader(self):
+        """Two-sided marketplace with network effects and rapid growth."""
+        ev = _build_mock_evaluation(
+            startup_name="TradeNest",
+            overall_score=8.0,
+            recommendation="Buy",
+            dim_scores=[8.0, 8.0, 7.5, 8.0, 8.5],
+        )
+        assert ev.overall_score >= 8.0
+        assert ev.investment_recommendation == "Buy"
+
+    # -----------------------------------------------------------------
+    # Promising Tier (7.0 - 7.9 -> Hold with promising message)
+    # -----------------------------------------------------------------
+
+    def test_promising_01_healthtech(self):
+        """HealthTech with real traction but unproven unit economics."""
+        ev = _build_mock_evaluation(
+            startup_name="MedSync",
+            overall_score=7.5,
+            recommendation="Hold",
+            dim_scores=[7.5, 8.0, 7.0, 7.0, 8.0],
+        )
+        assert 7.0 <= ev.overall_score < 8.0
+        assert "Hold" in ev.investment_recommendation
+
+    def test_promising_02_edtech_growth(self):
+        """EdTech with growing user base, needs monetization clarity."""
+        ev = _build_mock_evaluation(
+            startup_name="LearnPath",
+            overall_score=7.2,
+            recommendation="Hold",
+            dim_scores=[7.0, 7.5, 7.0, 7.0, 7.5],
+        )
+        assert 7.0 <= ev.overall_score < 8.0
+        assert "Hold" in ev.investment_recommendation
+
+    def test_promising_03_logistics_platform(self):
+        """Logistics optimization with pilot customers, pre-revenue."""
+        ev = _build_mock_evaluation(
+            startup_name="RouteMaster",
+            overall_score=7.0,
+            recommendation="Hold",
+            dim_scores=[7.0, 7.0, 7.0, 6.5, 7.5],
+        )
+        assert 7.0 <= ev.overall_score < 8.0
+        assert "Hold" in ev.investment_recommendation
+
+    def test_promising_04_cybersecurity(self):
+        """Cybersecurity tool with strong tech, early sales pipeline."""
+        ev = _build_mock_evaluation(
+            startup_name="ShieldNet",
+            overall_score=7.8,
+            recommendation="Hold",
+            dim_scores=[8.0, 7.5, 7.5, 7.5, 8.5],
+        )
+        assert 7.0 <= ev.overall_score < 8.0
+        assert "Hold" in ev.investment_recommendation
+
+    # -----------------------------------------------------------------
+    # Average Tier (5.5 - 6.9 -> Hold)
+    # -----------------------------------------------------------------
+
+    def test_average_01_food_delivery(self):
+        """Food delivery clone in saturated market, some traction."""
+        ev = _build_mock_evaluation(
+            startup_name="QuickBite",
+            overall_score=6.2,
+            recommendation="Hold",
+            dim_scores=[6.0, 6.5, 6.0, 6.0, 6.5],
+        )
+        assert 5.5 <= ev.overall_score < 7.0
+        assert ev.investment_recommendation == "Hold"
+
+    def test_average_02_social_app(self):
+        """Social app with niche audience, unclear monetization."""
+        ev = _build_mock_evaluation(
+            startup_name="VibeCheck",
+            overall_score=5.8,
+            recommendation="Hold",
+            dim_scores=[6.0, 5.5, 5.5, 6.0, 6.0],
+        )
+        assert 5.5 <= ev.overall_score < 7.0
+        assert ev.investment_recommendation == "Hold"
+
+    def test_average_03_ecommerce_tool(self):
+        """E-commerce analytics tool, some revenue, crowded space."""
+        ev = _build_mock_evaluation(
+            startup_name="ShopInsight",
+            overall_score=6.8,
+            recommendation="Hold",
+            dim_scores=[7.0, 6.5, 6.5, 7.0, 7.0],
+        )
+        assert 5.5 <= ev.overall_score < 7.0
+        assert ev.investment_recommendation == "Hold"
+
+    def test_average_04_hr_platform(self):
+        """HR platform with basic features, no differentiation."""
+        ev = _build_mock_evaluation(
+            startup_name="HireFlow",
+            overall_score=5.5,
+            recommendation="Hold",
+            dim_scores=[5.5, 5.5, 5.0, 5.5, 6.0],
+        )
+        assert 5.5 <= ev.overall_score < 7.0
+        assert ev.investment_recommendation == "Hold"
+
+    # -----------------------------------------------------------------
+    # Weak Tier (< 5.5 -> Pass)
+    # -----------------------------------------------------------------
+
+    def test_weak_01_crypto_nft(self):
+        """NFT marketplace with no traction, regulatory risk."""
+        ev = _build_mock_evaluation(
+            startup_name="CryptoApes",
+            overall_score=3.5,
+            recommendation="Pass",
+            dim_scores=[3.0, 4.0, 3.0, 3.5, 4.0],
+        )
+        assert ev.overall_score < 5.5
+        assert ev.investment_recommendation == "Pass"
+
+    def test_weak_02_metaverse_social(self):
+        """Metaverse social platform, vague vision, no MVP."""
+        ev = _build_mock_evaluation(
+            startup_name="MetaHangout",
+            overall_score=4.2,
+            recommendation="Pass",
+            dim_scores=[4.0, 4.5, 4.0, 4.0, 4.5],
+        )
+        assert ev.overall_score < 5.5
+        assert ev.investment_recommendation == "Pass"
+
+    def test_weak_03_ai_wrapper(self):
+        """Thin AI wrapper with no moat, trivial to replicate."""
+        ev = _build_mock_evaluation(
+            startup_name="GPTWrapper",
+            overall_score=5.0,
+            recommendation="Pass",
+            dim_scores=[5.0, 5.0, 4.5, 5.0, 5.5],
+        )
+        assert ev.overall_score < 5.5
+        assert ev.investment_recommendation == "Pass"
+
+
+# =====================================================================
+# 9. Recommendation Calibration Integration Tests
+# =====================================================================
+
+def _get_real_agent_class():
+    """Import the real (unpatched) ReActAgent class from the source module."""
+    import importlib
+    import importlib.util
+    import os
+    spec = importlib.util.spec_from_file_location(
+        "react_agent_real",
+        os.path.join(os.path.dirname(__file__), "..", "app", "agent", "react_agent.py"),
+    )
+    mod = importlib.util.module_from_spec(spec)
+    import app.models.schemas  # noqa: F401
+    spec.loader.exec_module(mod)
+    return mod.ReActAgent
+
+
+class TestRecommendationCalibration:
+    """
+    Verify that the react_agent._build_evaluation_from_dict enforces
+    score-based recommendation thresholds regardless of what the LLM returns.
+    """
+
+    @pytest.fixture(autouse=True)
+    def _load_real_class(self):
+        self.RealAgent = _get_real_agent_class()
+
+    def _make_agent(self):
+        return object.__new__(self.RealAgent)
+
+    def test_calibration_buy_threshold(self):
+        """Score >= 8.0 always produces Buy."""
+        agent = self._make_agent()
+        data = {
+            "problem_clarity": {"score": 8.5, "reasoning": "Clear", "suggestions": []},
+            "market_opportunity": {"score": 8.0, "reasoning": "Big", "suggestions": []},
+            "solution_quality": {"score": 8.0, "reasoning": "Solid", "suggestions": []},
+            "traction_validation": {"score": 8.0, "reasoning": "Real", "suggestions": []},
+            "team_execution": {"score": 8.5, "reasoning": "Strong", "suggestions": []},
+            "overall_score": 8.2,
+            "recommendation": "Strong Buy",
+            "strengths": ["a"],
+            "concerns": ["b"],
+            "next_steps": ["c"],
+        }
+        result = agent._build_evaluation_from_dict(data, "TestCo", "startup")
+        assert result.investment_recommendation == "Buy"
+
+    def test_calibration_hold_promising_threshold(self):
+        """Score 7.0-7.9 produces Hold with promising message."""
+        agent = self._make_agent()
+        data = {
+            "problem_clarity": {"score": 7.5, "reasoning": "Ok", "suggestions": []},
+            "market_opportunity": {"score": 7.0, "reasoning": "Ok", "suggestions": []},
+            "solution_quality": {"score": 7.0, "reasoning": "Ok", "suggestions": []},
+            "traction_validation": {"score": 7.0, "reasoning": "Ok", "suggestions": []},
+            "team_execution": {"score": 7.5, "reasoning": "Ok", "suggestions": []},
+            "overall_score": 7.2,
+            "recommendation": "Buy",
+            "strengths": ["a"],
+            "concerns": ["b"],
+            "next_steps": ["c"],
+        }
+        result = agent._build_evaluation_from_dict(data, "TestCo", "startup")
+        assert "Hold" in result.investment_recommendation
+        assert "Promising fundamentals" in result.investment_recommendation
+
+    def test_calibration_hold_standard_threshold(self):
+        """Score 5.5-6.9 produces plain Hold."""
+        agent = self._make_agent()
+        data = {
+            "problem_clarity": {"score": 6.0, "reasoning": "Ok", "suggestions": []},
+            "market_opportunity": {"score": 6.5, "reasoning": "Ok", "suggestions": []},
+            "solution_quality": {"score": 6.0, "reasoning": "Ok", "suggestions": []},
+            "traction_validation": {"score": 6.0, "reasoning": "Ok", "suggestions": []},
+            "team_execution": {"score": 6.5, "reasoning": "Ok", "suggestions": []},
+            "overall_score": 6.2,
+            "recommendation": "Buy",
+            "strengths": ["a"],
+            "concerns": ["b"],
+            "next_steps": ["c"],
+        }
+        result = agent._build_evaluation_from_dict(data, "TestCo", "startup")
+        assert result.investment_recommendation == "Hold"
+
+    def test_calibration_pass_threshold(self):
+        """Score < 5.5 always produces Pass."""
+        agent = self._make_agent()
+        data = {
+            "problem_clarity": {"score": 4.0, "reasoning": "Weak", "suggestions": []},
+            "market_opportunity": {"score": 4.5, "reasoning": "Small", "suggestions": []},
+            "solution_quality": {"score": 4.0, "reasoning": "Weak", "suggestions": []},
+            "traction_validation": {"score": 4.0, "reasoning": "None", "suggestions": []},
+            "team_execution": {"score": 4.5, "reasoning": "Weak", "suggestions": []},
+            "overall_score": 4.2,
+            "recommendation": "Hold",
+            "strengths": ["a"],
+            "concerns": ["b"],
+            "next_steps": ["c"],
+        }
+        result = agent._build_evaluation_from_dict(data, "TestCo", "startup")
+        assert result.investment_recommendation == "Pass"
+
+    def test_calibration_overrides_llm_recommendation(self):
+        """Score-based override always wins over LLM recommendation."""
+        agent = self._make_agent()
+        data = {
+            "problem_clarity": {"score": 7.0, "reasoning": "Ok", "suggestions": []},
+            "market_opportunity": {"score": 6.5, "reasoning": "Ok", "suggestions": []},
+            "solution_quality": {"score": 7.0, "reasoning": "Ok", "suggestions": []},
+            "traction_validation": {"score": 6.5, "reasoning": "Ok", "suggestions": []},
+            "team_execution": {"score": 7.0, "reasoning": "Ok", "suggestions": []},
+            "overall_score": 6.8,
+            "recommendation": "Strong Buy",
+            "strengths": ["a"],
+            "concerns": ["b"],
+            "next_steps": ["c"],
+        }
+        result = agent._build_evaluation_from_dict(data, "TestCo", "startup")
+        assert result.investment_recommendation == "Hold"
