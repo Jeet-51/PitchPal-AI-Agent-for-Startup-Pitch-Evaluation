@@ -365,7 +365,7 @@ export default function EvaluatePage() {
                 <AlertTriangle className="w-8 h-8" style={{ color: "#ef4444" }} />
               </div>
               <h3 className="font-bold text-lg text-[var(--foreground)] mb-2">
-                Daily Limit Reached
+                Evaluation Limit Reached
               </h3>
               <p className="text-sm text-[var(--muted)] max-w-sm mx-auto mb-4">
                 You&apos;ve used all {rateLimitStatus?.limit} free evaluations for this{" "}

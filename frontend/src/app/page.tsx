@@ -256,6 +256,9 @@ export default function LandingPage() {
                 <div className="flex items-center gap-2 text-sm font-semibold text-purple-400 group-hover:gap-3 transition-all duration-200">
                   Enter Access Code <ArrowRight className="w-4 h-4" />
                 </div>
+                <p className="text-xs text-[var(--muted)] mt-2 opacity-70">
+                  Contact <a href="https://www.linkedin.com/in/pateljeet22/" target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:text-purple-300 underline underline-offset-2" onClick={(e) => e.stopPropagation()}>Jeet Patel</a> to get the access code
+                </p>
               </div>
             </motion.button>
 

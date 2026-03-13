@@ -49,7 +49,7 @@ class Settings:
     # Rate Limiting
     RATE_LIMIT_STARTUP_MAX: int = int(os.getenv("RATE_LIMIT_STARTUP_MAX", "3"))
     RATE_LIMIT_INVESTOR_MAX: int = int(os.getenv("RATE_LIMIT_INVESTOR_MAX", "5"))
-    RATE_LIMIT_WINDOW_HOURS: int = int(os.getenv("RATE_LIMIT_WINDOW_HOURS", "24"))
+    RATE_LIMIT_WINDOW_HOURS: int = int(os.getenv("RATE_LIMIT_WINDOW_HOURS", "4"))
 
     # CORS
     FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:3000")
