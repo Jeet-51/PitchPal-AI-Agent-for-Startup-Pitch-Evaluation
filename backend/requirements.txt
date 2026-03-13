@@ -1,0 +1,32 @@
+# PitchPal v2 Backend Dependencies
+
+# Web Framework
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+websockets==14.1
+
+# LLM Providers
+google-generativeai==0.8.4
+groq==0.15.0
+
+# Search Tool
+tavily-python==0.5.0
+
+# Data Validation
+pydantic==2.10.4
+
+# Environment
+python-dotenv==1.0.1
+
+# Deck Upload (PDF/PPTX parsing + file uploads)
+PyMuPDF>=1.24.0          # PDF → text + slide images
+python-pptx>=1.0.0       # PPTX → text extraction
+python-multipart>=0.0.20 # FastAPI multipart file uploads
+
+# Testing
+pytest>=8.0.0
+httpx>=0.27.0
+
+# Optional: Other LLM providers (install when needed)
+# openai==1.58.1
+# anthropic==0.42.0

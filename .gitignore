@@ -2,6 +2,7 @@
 .env
 .env.local
 .env.production
+backend/.env
 
 # Python
 __pycache__/
@@ -13,7 +14,12 @@ env/
 venv/
 .venv/
 pip-log.txt
-pip-delete-this-directory.txt
+
+# Node.js
+node_modules/
+.next/
+out/
+frontend/.env.local
 
 # IDE
 .vscode/
@@ -25,9 +31,6 @@ pip-delete-this-directory.txt
 .DS_Store
 Thumbs.db
 
-# Streamlit
-.streamlit/secrets.toml
-
 # Logs
 *.log
 
@@ -35,8 +38,16 @@ Thumbs.db
 *.db
 *.sqlite
 
-# Jupyter
-.ipynb_checkpoints/
-
 # pytest
 .pytest_cache/
+
+# Cache files (generated at runtime)
+backend/.cache/
+
+# Claude
+.claude/
+
+# Misc
+nul
+commands.txt
+generate_sample_deck.py

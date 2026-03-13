@@ -1,0 +1,16 @@
+node_modules
+.next
+out
+__pycache__
+*.pyc
+venv
+.venv
+.git
+.gitignore
+*.md
+.env
+.env.*
+.cache
+*.log
+.DS_Store
+Thumbs.db
