@@ -367,7 +367,7 @@ PitchPal-v2/
 | Aspect | v1 | v2 |
 |---|---|---|
 | **Agent** | LangChain `create_react_agent` | Custom ReAct loop from scratch |
-| **LLM** | OpenAI GPT-4 only | Gemini, Groq, OpenAI, Anthropic |
+| **LLM** | OpenAI GPT-4 only | Gemini |
 | **Frontend** | Streamlit | Next.js 16 + React 19 + Tailwind |
 | **Backend** | Streamlit server | FastAPI + WebSocket |
 | **Search** | LangChain tools (no real web) | Tavily live search (4 specialized tools) |
