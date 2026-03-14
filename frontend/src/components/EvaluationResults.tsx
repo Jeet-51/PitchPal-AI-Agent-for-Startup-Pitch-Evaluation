@@ -401,6 +401,28 @@ export default function EvaluationResults({
             ))}
           </ol>
         </motion.div>
+
+        {/* Coming soon teaser */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="rounded-xl p-4 flex items-center gap-3"
+          style={{
+            background: "linear-gradient(135deg, rgba(139,92,246,0.08), rgba(59,130,246,0.08))",
+            border: "1px dashed rgba(139,92,246,0.3)",
+          }}
+        >
+          <span className="text-lg">&#9889;</span>
+          <div>
+            <p className="text-sm font-semibold text-[var(--foreground)]">
+              Coming Soon: Pitch Improver Agent
+            </p>
+            <p className="text-xs text-[var(--muted)] mt-0.5">
+              Get AI-powered rewrites for your weakest dimensions. One click to improve, re-submit, and watch your score rise.
+            </p>
+          </div>
+        </motion.div>
       </div>
 
       {/* ── Meta ────────────────────────────────────────────── */}
