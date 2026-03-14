@@ -254,6 +254,19 @@ export default function ComparePage() {
                       </tbody>
                     </table>
                   </motion.div>
+
+                  {/* Variance disclaimer */}
+                  <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="glass-card rounded-2xl p-4 flex items-start gap-3"
+                    style={{ borderColor: "var(--card-border)" }}>
+                    <span className="text-[var(--muted)] text-lg mt-0.5">&#9432;</span>
+                    <p className="text-xs text-[var(--muted)] leading-relaxed">
+                      Score variations between runs are normal. PitchPal uses live web research, so different
+                      data sources may be found each time, leading to slightly different assessments.
+                      Differences of 1-2 points reflect real-time research variability.
+                    </p>
+                  </motion.div>
                 </>
               )}
             </div>
