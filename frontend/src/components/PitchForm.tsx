@@ -69,10 +69,11 @@ export default function PitchForm({ onSubmit, isLoading }: Props) {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -6, scale: 0.98 }}
               transition={{ duration: 0.18 }}
-              className="absolute top-full left-0 right-0 mt-1.5 rounded-xl overflow-hidden z-20 border border-[var(--card-border)]"
+              className="absolute top-full left-0 right-0 mt-1.5 rounded-xl overflow-hidden overflow-y-auto z-20 border border-[var(--card-border)]"
               style={{
                 background: "var(--bg-secondary)",
                 boxShadow: "0 12px 40px rgba(0,0,0,0.2)",
+                maxHeight: "240px",
               }}
             >
               {samples.map((s) => (
@@ -80,10 +81,10 @@ export default function PitchForm({ onSubmit, isLoading }: Props) {
                   key={s.name}
                   type="button"
                   onClick={() => handleSample(s)}
-                  className="w-full px-4 py-3 text-left text-sm hover:bg-[var(--hover-bg)] transition-colors border-b border-[var(--card-border)] last:border-0"
+                  className="w-full px-4 py-2.5 text-left text-sm hover:bg-[var(--hover-bg)] transition-colors border-b border-[var(--card-border)] last:border-0"
                 >
                   <span className="font-medium text-[var(--foreground)]">{s.name}</span>
-                  <p className="text-xs text-[var(--muted)] mt-0.5 line-clamp-1">{s.pitch}</p>
+                  <p className="text-xs text-[var(--muted)] mt-0.5 line-clamp-1 break-all">{s.pitch}</p>
                 </button>
               ))}
             </motion.div>
