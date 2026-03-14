@@ -114,6 +114,7 @@ async def root():
 
 
 @app.get("/health", response_model=HealthResponse)
+@app.head("/health")
 async def health_check():
     agent = ReActAgent()
     return HealthResponse(
