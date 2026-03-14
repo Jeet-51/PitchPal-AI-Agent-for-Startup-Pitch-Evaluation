@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -25,6 +25,134 @@ const cardHover = {
   rest: { y: 0, scale: 1 },
   hover: { y: -8, scale: 1.01, transition: { type: "spring", stiffness: 380, damping: 22 } },
 } as any;
+
+/* ── Agent demo steps ───────────────────────────────────── */
+const AGENT_STEPS = [
+  { type: "think" as const, text: "What market is this startup targeting? Let me research the TAM." },
+  { type: "action" as const, text: 'market_research("edtech AI tutoring market size 2024 CAGR TAM")' },
+  { type: "result" as const, text: "Global EdTech market: $340B by 2025, 16.3% CAGR (HolonIQ)" },
+  { type: "think" as const, text: "Strong market. Now let me check who the competitors are." },
+  { type: "action" as const, text: 'competitor_analysis("AI tutoring platforms startups funding 2024")' },
+  { type: "result" as const, text: "Top competitors: Duolingo ($7.4B), Khan Academy, Photomath (Google)" },
+  { type: "think" as const, text: "Well-funded space. Let me evaluate the team credentials." },
+  { type: "action" as const, text: 'search("founder background edtech startup experience")' },
+  { type: "result" as const, text: "CTO: ex-Google AI, CEO: 2x founder (1 exit), Advisor: Stanford CS Prof" },
+  { type: "think" as const, text: "Strong team. I have enough data to score all 5 dimensions." },
+];
+
+function AgentDemo() {
+  const [visibleSteps, setVisibleSteps] = useState(0);
+  const [typingText, setTypingText] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function animate() {
+      for (let i = 0; i < AGENT_STEPS.length; i++) {
+        if (cancelled) return;
+        const step = AGENT_STEPS[i];
+        setIsTyping(true);
+        setTypingText("");
+
+        // Type out the text character by character
+        for (let c = 0; c <= step.text.length; c++) {
+          if (cancelled) return;
+          await new Promise<void>((r) => { timeoutRef.current = setTimeout(r, step.type === "result" ? 12 : 22); });
+          setTypingText(step.text.slice(0, c));
+        }
+
+        setIsTyping(false);
+        setVisibleSteps(i + 1);
+
+        // Scroll to bottom
+        if (containerRef.current) {
+          containerRef.current.scrollTop = containerRef.current.scrollHeight;
+        }
+
+        // Pause between steps
+        await new Promise<void>((r) => { timeoutRef.current = setTimeout(r, step.type === "result" ? 600 : 400); });
+      }
+
+      // After all steps, pause then restart
+      await new Promise<void>((r) => { timeoutRef.current = setTimeout(r, 3000); });
+      if (!cancelled) {
+        setVisibleSteps(0);
+        setTypingText("");
+        animate();
+      }
+    }
+
+    animate();
+    return () => { cancelled = true; if (timeoutRef.current) clearTimeout(timeoutRef.current); };
+  }, []);
+
+  const stepIcon = (type: string) => {
+    if (type === "think") return { label: "Thinking", color: "#a78bfa", icon: "~" };
+    if (type === "action") return { label: "Action", color: "#60a5fa", icon: ">" };
+    return { label: "Result", color: "#34d399", icon: "<" };
+  };
+
+  return (
+    <div
+      ref={containerRef}
+      className="w-full rounded-xl overflow-hidden font-mono text-xs leading-relaxed"
+      style={{
+        background: "rgba(0,0,0,0.4)",
+        border: "1px solid var(--card-border)",
+        maxHeight: "280px",
+        overflowY: "auto",
+      }}
+    >
+      {/* Terminal header */}
+      <div className="flex items-center gap-2 px-4 py-2.5 border-b border-[var(--card-border)]"
+        style={{ background: "rgba(0,0,0,0.3)" }}>
+        <div className="flex gap-1.5">
+          <div className="w-2.5 h-2.5 rounded-full bg-red-500/70" />
+          <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/70" />
+          <div className="w-2.5 h-2.5 rounded-full bg-green-500/70" />
+        </div>
+        <span className="text-[10px] text-[var(--muted)] ml-2">pitchpal-agent</span>
+      </div>
+
+      {/* Steps */}
+      <div className="p-4 space-y-2.5">
+        {AGENT_STEPS.slice(0, visibleSteps).map((step, i) => {
+          const s = stepIcon(step.type);
+          return (
+            <div key={i} className="flex gap-2">
+              <span className="shrink-0 font-bold" style={{ color: s.color }}>
+                {s.icon}
+              </span>
+              <div>
+                <span className="font-semibold" style={{ color: s.color }}>{s.label}: </span>
+                <span className="text-gray-300">{step.text}</span>
+              </div>
+            </div>
+          );
+        })}
+
+        {/* Currently typing step */}
+        {isTyping && visibleSteps < AGENT_STEPS.length && (
+          <div className="flex gap-2">
+            <span className="shrink-0 font-bold" style={{ color: stepIcon(AGENT_STEPS[visibleSteps].type).color }}>
+              {stepIcon(AGENT_STEPS[visibleSteps].type).icon}
+            </span>
+            <div>
+              <span className="font-semibold" style={{ color: stepIcon(AGENT_STEPS[visibleSteps].type).color }}>
+                {stepIcon(AGENT_STEPS[visibleSteps].type).label}:{" "}
+              </span>
+              <span className="text-gray-300">{typingText}</span>
+              <span className="inline-block w-1.5 h-3.5 ml-0.5 bg-gray-400 animate-pulse" />
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 const features = [
   { icon: Brain, label: "ReAct Agent", cls: "from-violet-500 to-purple-600" },
@@ -144,6 +272,19 @@ export default function LandingPage() {
               {f.label}
             </motion.div>
           ))}
+        </motion.div>
+
+        {/* ── Agent thinking demo ──────────────────────────── */}
+        <motion.div variants={item} className="w-full max-w-2xl mb-10">
+          <div className="text-center mb-4">
+            <p className="text-xs uppercase tracking-widest font-semibold" style={{ color: "var(--accent-primary)" }}>
+              See how the agent thinks
+            </p>
+            <h2 className="text-lg font-bold text-[var(--foreground)] mt-1">
+              Real ReAct Reasoning Loop
+            </h2>
+          </div>
+          <AgentDemo />
         </motion.div>
 
         {/* ── Option 2: Secondary "Why?" CTA ───────────────── */}
