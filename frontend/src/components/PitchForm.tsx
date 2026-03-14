@@ -81,10 +81,11 @@ export default function PitchForm({ onSubmit, isLoading }: Props) {
                   key={s.name}
                   type="button"
                   onClick={() => handleSample(s)}
-                  className="w-full px-4 py-2.5 text-left text-sm hover:bg-[var(--hover-bg)] transition-colors border-b border-[var(--card-border)] last:border-0"
+                  className="w-full px-4 py-2.5 text-left text-sm hover:bg-[var(--hover-bg)] transition-colors border-b border-[var(--card-border)] last:border-0 overflow-hidden"
+                  style={{ maxHeight: "60px" }}
                 >
                   <span className="font-medium text-[var(--foreground)]">{s.name}</span>
-                  <p className="text-xs text-[var(--muted)] mt-0.5 line-clamp-1 break-all">{s.pitch}</p>
+                  <p className="text-xs text-[var(--muted)] mt-0.5 truncate">{s.pitch.slice(0, 80)}...</p>
                 </button>
               ))}
             </motion.div>
