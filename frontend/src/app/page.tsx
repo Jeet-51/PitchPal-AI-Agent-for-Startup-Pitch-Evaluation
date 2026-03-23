@@ -82,6 +82,9 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-[var(--background)] relative overflow-hidden">
 
+      {/* ── Animated mesh gradient background ────────────── */}
+      <div className="mesh-gradient" />
+
       {/* ── Floating orb background ──────────────────────── */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="orb orb-1 absolute w-[640px] h-[640px] -top-60 -right-40" />
@@ -95,7 +98,7 @@ export default function LandingPage() {
         style={{
           backgroundImage: `radial-gradient(circle, var(--card-border) 1px, transparent 1px)`,
           backgroundSize: "32px 32px",
-          opacity: 0.5,
+          opacity: 0.35,
         }}
       />
 
